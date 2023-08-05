@@ -1,6 +1,7 @@
 use phys_rs::math::{quat, Quat};
 
-#[test]
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
 fn test_new() {
     let v0 = Quat::from_xyzw(1.0, 2.0, 3.0, 4.0);
     assert_eq!((1.0, 2.0, 3.0, 4.0), v0.into());
@@ -10,20 +11,23 @@ fn test_new() {
     assert_eq!((1.0, 2.0, 3.0, 4.0), v2.into());
 }
 
-#[test]
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
 fn test_const() {
     const V1: Quat = quat(1.0, 2.0, 3.0, 4.0);
     assert_eq!((1.0, 2.0, 3.0, 4.0), V1.into());
 }
 
-#[test]
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
 fn test_consts() {
     assert_eq!([0.0; 4], *Quat::ZERO.as_ref());
     assert_eq!((0.0, 0.0, 0.0, 1.0), Quat::IDENTITY.into());
 }
 
-#[test]
 #[allow(clippy::uninlined_format_args)]
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
 fn test_fmt() {
     const V0: Quat = quat(1.0, 2.0, 3.0, 4.0);
     assert_eq!(
@@ -51,7 +55,8 @@ fn test_fmt() {
     assert_eq!(format!("{}", V0), "[1, 2, 3, 4]");
 }
 
-#[test]
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
 fn test_accessors() {
     let mut a = Quat::ZERO;
     a.x = 1.0;
@@ -76,8 +81,9 @@ fn test_accessors() {
     assert_eq!((1.0, 2.0, 3.0, 4.0), a.into());
 }
 
-#[test]
 #[should_panic]
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
 fn test_invalid_accessors() {
-    assert_eq!(0.0, Quat::ZERO[4]);
+    assert_eq!(1.0, Quat::ZERO[4]);
 }

@@ -84,7 +84,7 @@ impl Vec3 {
         #[cfg(arm_neon)]
         return Self(unsafe { vminq_f32(self.0, rhs.0) });
         #[cfg(wasm_simd128)]
-        return Self(f32x4_pmax(self.0, rhs.0));
+        return Self(f32x4_pmin(self.0, rhs.0));
         #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
         return Self::new(self.x.min(rhs.x), self.y.min(rhs.y), self.z.min(rhs.z));
     }
@@ -96,7 +96,7 @@ impl Vec3 {
         #[cfg(arm_neon)]
         return Self(unsafe { vmaxq_f32(self.0, rhs.0) });
         #[cfg(wasm_simd128)]
-        return Self(f32x4_pmin(self.0, rhs.0));
+        return Self(f32x4_pmax(self.0, rhs.0));
         #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
         return Self::new(self.x.max(rhs.x), self.y.max(rhs.y), self.z.max(rhs.z));
     }

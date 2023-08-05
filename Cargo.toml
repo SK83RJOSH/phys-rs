@@ -29,6 +29,9 @@ std = []
 # disable all support for simd
 no-simd = []
 
+[target.'cfg(target_family = "wasm")'.dev-dependencies]
+wasm-bindgen-test = "0.3.37"
+
 [build-dependencies]
 cfg_aliases.workspace = true
 
