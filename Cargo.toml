@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[workspace.dependencies]
+cfg_aliases = "0.1.1"
+
+[package]
+name = "phys-rs"
+version.workspace = true
+edition.workspace = true
+authors = ["Joshua Wood <me@sk83rjo.sh>"]
+repository = "https://github.com/SK83RJOSH/phys-rs"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["gamedev", "physics"]
+categories = ["game-engines", "no-std"]
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[features]
+default = ["std"]
+# enable support for the standard library
+std = []
+# disable all support for simd
+no-simd = []
+
+[build-dependencies]
+cfg_aliases.workspace = true
+
+[lib]
+bench = false

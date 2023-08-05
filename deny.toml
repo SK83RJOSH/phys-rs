@@ -1,0 +1,9 @@
+[advisories]
+unmaintained = "warn"
+
+[bans]
+multiple-versions = "deny"
+
+[licenses]
+unlicensed = "deny"
+allow = ["Apache-2.0", "MIT"]
