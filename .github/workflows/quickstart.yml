@@ -22,6 +22,7 @@ jobs:
           command: check
 
   lint:
+    permissions: write-all
     name: Lint
     runs-on: ubuntu-latest
     steps:
