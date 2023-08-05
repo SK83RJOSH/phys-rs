@@ -69,6 +69,7 @@ jobs:
         with:
           command: test
           args: --features=no-simd
+        continue-on-error: true
 
       - name: Test (x86 sse2)
         env:
@@ -76,6 +77,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+        continue-on-error: true
 
       - name: Test (x86 sse4.1)
         env:
@@ -83,6 +85,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+        continue-on-error: true
 
       - name: Test (aarch64 neon)
         env:
@@ -92,8 +95,10 @@ jobs:
           use-cross: true
           command: test
           args: --target aarch64-unknown-linux-musl
+        continue-on-error: true
 
       - name: Test (wasm simd128)
         env:
           RUSTFLAGS: -Ctarget-feature=+simd128
         run: wasm-pack test --headless --chrome
+        continue-on-error: true

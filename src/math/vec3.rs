@@ -80,11 +80,19 @@ impl Vec3 {
     #[inline]
     pub fn min(self, rhs: Self) -> Self {
         #[cfg(x86_sse)]
+        compile_error!("X86_SEE");
+        #[cfg(x86_sse)]
         return Self(unsafe { _mm_min_ps(self.0, rhs.0) });
+        #[cfg(arm_neon)]
+        compile_error!("ARM_NEON");
         #[cfg(arm_neon)]
         return Self(unsafe { vminq_f32(self.0, rhs.0) });
         #[cfg(wasm_simd128)]
+        compile_error!("WASM_SIMD128");
+        #[cfg(wasm_simd128)]
         return Self(f32x4_pmin(self.0, rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        compile_error!("NO_SIMD");
         #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
         return Self::new(self.x.min(rhs.x), self.y.min(rhs.y), self.z.min(rhs.z));
     }
