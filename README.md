@@ -1,5 +1,7 @@
 # phys-rs 🚧
 
+[![CI](https://github.com/SK83RJOSH/phys-rs/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SK83RJOSH/phys-rs/actions/workflows/ci.yml?query=branch%3Amain)
+
 phys-rs is an experimental physics engine heavily based on other open source works.
 
 ## License
