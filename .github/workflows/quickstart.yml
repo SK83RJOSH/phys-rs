@@ -1,0 +1,98 @@
+name: Quickstart
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Run cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Test (no-simd)
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --features=no-simd
+
+      - name: Test (x86 sse2)
+        env:
+          RUSTFLAGS: -Ctarget-feature=+sse2
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - name: Test (x86 sse4.1)
+        env:
+          RUSTFLAGS: -Ctarget-feature=+sse4.1
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - name: Test (aarch64 neon)
+        env:
+          RUSTFLAGS: -Ctarget-feature=+neon
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+          args: --target aarch64-unknown-linux-musl
+
+      - name: Test (wasm simd128)
+        env:
+          RUSTFLAGS: -Ctarget-feature=+simd128
+        run: wasm-pack test --headless --chrome
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
