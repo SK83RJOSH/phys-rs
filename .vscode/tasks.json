@@ -2,16 +2,171 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "rust: cargo clippy",
             "type": "cargo",
             "command": "clippy",
-            "problemMatcher": [
-                "$rustc"
-            ],
             "args": [
                 "--workspace"
             ],
             "group": "build",
-            "label": "rust: cargo clippy"
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "label": "rust: test i686-pc-windows-msvc (no-simd)",
+            "type": "cargo",
+            "command": "test",
+            "args": [
+                "--target",
+                "i686-pc-windows-msvc",
+                "--features",
+                "no-simd"
+            ],
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test i686-pc-windows-msvc (sse)",
+            "type": "cargo",
+            "command": "test",
+            "args": [
+                "--target",
+                "i686-pc-windows-msvc"
+            ],
+            "options": {
+                "env": {
+                    "RUSTFLAGS": "-Ctarget-feature=+sse",
+                }
+            },
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test x86_64-pc-windows-msvc (no-simd)",
+            "type": "cargo",
+            "command": "test",
+            "args": [
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--features",
+                "no-simd"
+            ],
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test x86_64-pc-windows-msvc (sse2)",
+            "type": "cargo",
+            "command": "test",
+            "args": [
+                "--target",
+                "x86_64-pc-windows-msvc"
+            ],
+            "options": {
+                "env": {
+                    "RUSTFLAGS": "-Ctarget-feature=+sse2",
+                }
+            },
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test x86_64-pc-windows-msvc (sse4.1)",
+            "type": "cargo",
+            "command": "test",
+            "args": [
+                "--target",
+                "x86_64-pc-windows-msvc"
+            ],
+            "options": {
+                "env": {
+                    "RUSTFLAGS": "-Ctarget-feature=+sse4.1",
+                }
+            },
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "type": "shell",
+            "label": "rust: test wasm (no-simd)",
+            "command": "wasm-pack",
+            "args": [
+                "test",
+                "--headless",
+                "--chrome",
+                "--",
+                "--features",
+                "no-simd"
+            ],
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test wasm (simd128)",
+            "type": "shell",
+            "command": "wasm-pack",
+            "args": [
+                "test",
+                "--headless",
+                "--chrome"
+            ],
+            "options": {
+                "env": {
+                    "RUSTFLAGS": "-Ctarget-feature=+simd128",
+                }
+            },
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "type": "shell",
+            "label": "rust: test aarch64-unknown-linux-musl (no-simd)",
+            "command": "cross",
+            "args": [
+                "test",
+                "--target",
+                "aarch64-unknown-linux-musl",
+                "--features",
+                "no-simd"
+            ],
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test aarch64-unknown-linux-musl (neon)",
+            "type": "shell",
+            "command": "cross",
+            "args": [
+                "test",
+                "--target",
+                "aarch64-unknown-linux-musl"
+            ],
+            "options": {
+                "env": {
+                    "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS": "-Ctarget-feature=+neon",
+                }
+            },
+            "group": "test",
+            "problemMatcher": [
+                "$rustc"
+            ],
         },
     ]
 }
