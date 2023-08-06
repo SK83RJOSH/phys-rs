@@ -2,6 +2,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "rust: cargo clippy",
+            "type": "cargo",
+            "command": "clippy",
+            "args": [
+                "--workspace"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
             "label": "rust: test matrix (windows)",
             "dependsOn": [
                 "rust: test i686-pc-windows-msvc (no-simd)",
@@ -13,18 +25,6 @@
                 "rust: test wasm32-unknown-unknown (simd128)",
                 "rust: test aarch64-unknown-linux-musl (no-simd)",
                 "rust: test aarch64-unknown-linux-musl (neon)",
-            ],
-            "group": "test",
-            "problemMatcher": [
-                "$rustc"
-            ]
-        },
-        {
-            "label": "rust: cargo clippy",
-            "type": "cargo",
-            "command": "clippy",
-            "args": [
-                "--workspace"
             ],
             "group": "build",
             "problemMatcher": [
@@ -41,7 +41,7 @@
                 "--features",
                 "no-simd"
             ],
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -59,7 +59,7 @@
                     "RUSTFLAGS": "-Ctarget-feature=+sse",
                 }
             },
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -74,7 +74,7 @@
                 "--features",
                 "no-simd"
             ],
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -92,7 +92,7 @@
                     "RUSTFLAGS": "-Ctarget-feature=+sse2",
                 }
             },
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -110,7 +110,7 @@
                     "RUSTFLAGS": "-Ctarget-feature=+sse4.1",
                 }
             },
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -127,7 +127,7 @@
                 "--features",
                 "no-simd"
             ],
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -146,7 +146,7 @@
                     "RUSTFLAGS": "-Ctarget-feature=+simd128",
                 }
             },
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -162,7 +162,7 @@
                 "--features",
                 "no-simd"
             ],
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
@@ -181,7 +181,7 @@
                     "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS": "-Ctarget-feature=+neon",
                 }
             },
-            "group": "test",
+            "group": "build",
             "problemMatcher": [
                 "$rustc"
             ],
