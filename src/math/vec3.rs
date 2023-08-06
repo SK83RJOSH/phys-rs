@@ -78,6 +78,38 @@ impl Vec3 {
     }
 
     #[inline]
+    pub const fn from_array(a: [f32; 3]) -> Self {
+        Self::new(a[0], a[1], a[2])
+    }
+
+    #[inline]
+    pub const fn to_array(&self) -> [f32; 3] {
+        unsafe { *(self as *const Vec3 as *const [f32; 3]) }
+    }
+
+    #[inline]
+    pub const fn from_slice(a: &[f32]) -> Self {
+        Self::new(a[0], a[1], a[2])
+    }
+
+    #[inline]
+    pub fn write_to_slice(self, slice: &mut [f32]) {
+        slice[0] = self.x;
+        slice[1] = self.y;
+        slice[2] = self.z;
+    }
+
+    #[inline]
+    pub const fn from_vec4(v: Vec4) -> Self {
+        Self(v.0)
+    }
+
+    #[inline]
+    pub fn extend(self, w: f32) -> Vec4 {
+        Vec4::new(self.x, self.y, self.z, w)
+    }
+
+    #[inline]
     pub fn min(self, rhs: Self) -> Self {
         #[cfg(x86_sse)]
         return Self(unsafe { _mm_min_ps(self.0, rhs.0) });
@@ -189,6 +221,48 @@ impl Vec3 {
             self.z * rhs.x - self.x * rhs.z,
             self.x * rhs.y - self.y * rhs.x,
         );
+    }
+
+    #[inline]
+    pub fn min_element(self) -> f32 {
+        #[cfg(x86_sse)]
+        unsafe {
+            let min = _mm_min_ps(self.0, _mm_shuffle_ps(self.0, self.0, 0b01_01_10_10));
+            _mm_cvtss_f32(_mm_min_ps(min, _mm_shuffle_ps(min, min, 0b00_00_00_01)))
+        }
+        #[cfg(arm_neon)]
+        return unsafe {
+            let min = vminq_f32(self.0, neon_shuffle::<2, 2, 1, 1>(self.0));
+            vgetq_lane_f32::<0>(vminq_f32(min, neon_shuffle::<1, 0, 0, 0>(min)))
+        };
+        #[cfg(wasm_simd128)]
+        return {
+            let min = f32x4_pmin(self.0, i32x4_shuffle::<2, 2, 1, 1>(self.0, self.0));
+            f32x4_extract_lane::<0>(f32x4_pmin(min, i32x4_shuffle::<1, 0, 0, 0>(min, min)))
+        };
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return self.x.min(self.y).min(self.z);
+    }
+
+    #[inline]
+    pub fn max_element(self) -> f32 {
+        #[cfg(x86_sse)]
+        unsafe {
+            let max = _mm_max_ps(self.0, _mm_shuffle_ps(self.0, self.0, 0b01_01_10_10));
+            _mm_cvtss_f32(_mm_max_ps(max, _mm_shuffle_ps(max, max, 0b00_00_00_01)))
+        }
+        #[cfg(arm_neon)]
+        return unsafe {
+            let max = vmaxq_f32(self.0, neon_shuffle::<2, 2, 1, 1>(self.0));
+            vgetq_lane_f32::<0>(vmaxq_f32(max, neon_shuffle::<1, 0, 0, 0>(max)))
+        };
+        #[cfg(wasm_simd128)]
+        return {
+            let max = f32x4_pmax(self.0, i32x4_shuffle::<2, 2, 1, 1>(self.0, self.0));
+            f32x4_extract_lane::<0>(f32x4_pmax(max, i32x4_shuffle::<1, 0, 0, 0>(max, max)))
+        };
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return self.x.max(self.y).max(self.z);
     }
 }
 

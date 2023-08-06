@@ -174,3 +174,20 @@ fn test_clamp() {
         vec4(9.0, 9.0, 9.0, 9.0).clamp(min, max).into()
     );
 }
+
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+fn test_min_max_element() {
+    let a = vec4(1.0, 2.0, 3.0, 4.0);
+    let b = vec4(2.0, 3.0, 4.0, 1.0);
+    let c = vec4(3.0, 4.0, 2.0, 1.0);
+    let d = vec4(4.0, 3.0, 2.0, 1.0);
+    assert_eq!(1.0, a.min_element());
+    assert_eq!(1.0, b.min_element());
+    assert_eq!(1.0, c.min_element());
+    assert_eq!(1.0, d.min_element());
+    assert_eq!(4.0, a.max_element());
+    assert_eq!(4.0, b.max_element());
+    assert_eq!(4.0, c.max_element());
+    assert_eq!(4.0, d.max_element());
+}

@@ -152,3 +152,17 @@ fn test_clamp() {
     assert_eq!((6.0, 7.0, 7.0), vec3(7.0, 7.0, 7.0).clamp(min, max).into());
     assert_eq!((6.0, 8.0, 8.0), vec3(9.0, 9.0, 9.0).clamp(min, max).into());
 }
+
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+fn test_min_max_element() {
+    let a = vec3(1.0, 2.0, 3.0);
+    let b = vec3(2.0, 3.0, 1.0);
+    let c = vec3(3.0, 2.0, 1.0);
+    assert_eq!(1.0, a.min_element());
+    assert_eq!(1.0, b.min_element());
+    assert_eq!(1.0, c.min_element());
+    assert_eq!(3.0, a.max_element());
+    assert_eq!(3.0, b.max_element());
+    assert_eq!(3.0, c.max_element());
+}
