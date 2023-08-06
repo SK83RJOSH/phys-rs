@@ -9,8 +9,8 @@
                 "rust: test x86_64-pc-windows-msvc (no-simd)",
                 "rust: test x86_64-pc-windows-msvc (sse2)",
                 "rust: test x86_64-pc-windows-msvc (sse4.1)",
-                "rust: test wasm (no-simd)",
-                "rust: test wasm (simd128)",
+                "rust: test wasm32-unknown-unknown (no-simd)",
+                "rust: test wasm32-unknown-unknown (simd128)",
                 "rust: test aarch64-unknown-linux-musl (no-simd)",
                 "rust: test aarch64-unknown-linux-musl (neon)",
             ],
@@ -117,7 +117,7 @@
         },
         {
             "type": "shell",
-            "label": "rust: test wasm (no-simd)",
+            "label": "rust: test wasm32-unknown-unknown (no-simd)",
             "command": "wasm-pack",
             "args": [
                 "test",
@@ -133,7 +133,7 @@
             ],
         },
         {
-            "label": "rust: test wasm (simd128)",
+            "label": "rust: test wasm32-unknown-unknown (simd128)",
             "type": "shell",
             "command": "wasm-pack",
             "args": [
