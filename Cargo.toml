@@ -26,6 +26,8 @@ maintenance = { status = "actively-developed" }
 default = ["std"]
 # enable support for the standard library
 std = []
+# enable support for nightly features
+nightly = []
 # disable all support for simd
 no-simd = []
 

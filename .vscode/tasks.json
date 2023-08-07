@@ -23,6 +23,8 @@
                 "rust: test x86_64-pc-windows-msvc (sse4.1)",
                 "rust: test wasm32-unknown-unknown (no-simd)",
                 "rust: test wasm32-unknown-unknown (simd128)",
+                "rust: test armv7-unknown-linux-gnueabihf (no-simd)",
+                "rust: test armv7-unknown-linux-gnueabihf (neon)",
                 "rust: test aarch64-unknown-linux-musl (no-simd)",
                 "rust: test aarch64-unknown-linux-musl (neon)",
             ],
@@ -179,6 +181,44 @@
             "options": {
                 "env": {
                     "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS": "-Ctarget-feature=+neon",
+                }
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "type": "shell",
+            "label": "rust: test armv7-unknown-linux-gnueabihf (no-simd)",
+            "command": "cross",
+            "args": [
+                "test",
+                "--target",
+                "armv7-unknown-linux-gnueabihf",
+                "--features",
+                "no-simd"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test armv7-unknown-linux-gnueabihf (neon)",
+            "type": "shell",
+            "command": "cross",
+            "args": [
+                "test",
+                "+nightly",
+                "--target",
+                "armv7-unknown-linux-gnueabihf",
+                "--features",
+                "nightly"
+            ],
+            "options": {
+                "env": {
+                    "CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_RUSTFLAGS": "-Ctarget-feature=+neon",
                 }
             },
             "group": "build",

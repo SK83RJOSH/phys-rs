@@ -4,8 +4,10 @@ use cfg_aliases::cfg_aliases;
 fn main() {
     cfg_aliases! {
         simd: { not(feature = "no-simd") },
-        arm: { any(target_arch = "arm", target_arch = "aarch64") },
-        arm_neon: { all(simd, arm, target_feature = "neon") },
+        aarch32: { target_arch = "arm" },
+        aarch64: { target_arch = "aarch64" },
+        arm: { any(aarch32, aarch64) },
+        arm_neon: { all(simd, arm, target_feature = "neon", any(aarch64, feature = "nightly")) },
         spirv: { target_arch = "spirv" },
         wasm: { any(target_arch = "wasm32", target_arch = "wasm64") },
         wasm_simd128: { all(simd, wasm, target_feature = "simd128") },
