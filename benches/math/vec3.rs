@@ -26,34 +26,26 @@ pub fn vec3_dot_into_vec4(c: &mut Criterion) {
 pub fn vec3_cross(c: &mut Criterion) {
     let x = vec3(black_box(1.0), black_box(2.0), black_box(3.0));
     let y = vec3(black_box(3.0), black_box(2.0), black_box(1.0));
-    c.bench_function("vec3_cross", |b| {
-        b.iter(|| black_box(x).cross(y))
-    });
+    c.bench_function("vec3_cross", |b| b.iter(|| black_box(x).cross(y)));
 }
 
 pub fn vec3_min(c: &mut Criterion) {
     let x = vec3(black_box(1.0), black_box(2.0), black_box(3.0));
     let y = vec3(black_box(3.0), black_box(2.0), black_box(1.0));
-    c.bench_function("vec3_min", |b| {
-        b.iter(|| black_box(x).min(y))
-    });
+    c.bench_function("vec3_min", |b| b.iter(|| black_box(x).min(y)));
 }
 
 pub fn vec3_max(c: &mut Criterion) {
     let x = vec3(black_box(1.0), black_box(2.0), black_box(3.0));
     let y = vec3(black_box(3.0), black_box(2.0), black_box(1.0));
-    c.bench_function("vec3_max", |b| {
-        b.iter(|| black_box(x).max(y))
-    });
+    c.bench_function("vec3_max", |b| b.iter(|| black_box(x).max(y)));
 }
 
 pub fn vec3_clamp(c: &mut Criterion) {
     let x = vec3(black_box(1.0), black_box(2.0), black_box(3.0));
     let y = vec3(black_box(0.0), black_box(1.0), black_box(2.0));
     let z = vec3(black_box(2.0), black_box(3.0), black_box(4.0));
-    c.bench_function("vec3_clamp", |b| {
-        b.iter(|| black_box(x).clamp(y, z))
-    });
+    c.bench_function("vec3_clamp", |b| b.iter(|| black_box(x).clamp(y, z)));
 }
 
 pub fn vec3_min_element(c: &mut Criterion) {
