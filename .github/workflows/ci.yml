@@ -33,7 +33,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: stable
+          toolchain: nightly
           components: rustfmt, clippy
 
       - name: Run clippy check
@@ -61,6 +61,15 @@ jobs:
           profile: minimal
           toolchain: stable
 
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
       - name: Test (no-simd)
         uses: actions-rs/cargo@v1
         with:
@@ -81,6 +90,15 @@ jobs:
         with:
           command: test
 
+      - name: Test (arm neon)
+        env:
+          CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_RUSTFLAGS: -Ctarget-feature=+neon
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+          args: +nightly --target armv7-unknown-linux-gnueabihf --features nightly
+
       - name: Test (aarch64 neon)
         env:
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS: -Ctarget-feature=+neon
@@ -90,25 +108,7 @@ jobs:
           command: test
           args: --target aarch64-unknown-linux-musl
 
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
       - name: Test (wasm simd128)
         env:
           RUSTFLAGS: -Ctarget-feature=+simd128
         run: wasm-pack test --headless --chrome
-
-      - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-
-      - name: Test (arm neon)
-        env:
-          CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_RUSTFLAGS: -Ctarget-feature=+neon
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: test
-          args: +nightly --target armv7-unknown-linux-gnueabihf --features nightly
