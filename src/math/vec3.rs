@@ -150,41 +150,35 @@ impl Vec3 {
 
     #[inline]
     pub fn dot(self, rhs: Self) -> f32 {
-        #[cfg(all(x86_sse, not(x86_sse4_1)))]
+        #[cfg(x86_sse)]
         return unsafe { sse_dot3_f32(self.0, rhs.0) };
-        #[cfg(x86_sse4_1)]
-        return unsafe { _mm_cvtss_f32(_mm_dp_ps(self.0, rhs.0, 0x7f)) };
         #[cfg(arm_neon)]
-        return unsafe { neon_add(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)) };
-        #[cfg(not(any(x86_sse, x86_sse4_1, arm_neon)))]
+        return unsafe { vaddvq_f32(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)) };
+        #[cfg(not(any(x86_sse, arm_neon)))]
         return (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z);
     }
 
     #[inline]
     pub fn dot_into_vec3(self, rhs: Self) -> Self {
-        #[cfg(all(x86_sse, not(x86_sse4_1)))]
+        #[cfg(x86_sse)]
         return Self(unsafe { sse_dot3_m128(self.0, rhs.0) });
-        #[cfg(x86_sse4_1)]
-        return Self(unsafe { _mm_dp_ps(self.0, rhs.0, 0x7f) });
         #[cfg(arm_neon)]
         return Self(unsafe {
-            vdupq_n_f32(neon_add(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)))
+            vdupq_n_f32(vaddvq_f32(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)))
         });
-        #[cfg(not(any(x86_sse, x86_sse4_1, arm_neon)))]
+        #[cfg(not(any(x86_sse, arm_neon)))]
         return Self::splat((self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z));
     }
 
     #[inline]
     pub fn dot_into_vec4(self, rhs: Self) -> Vec4 {
-        #[cfg(all(x86_sse, not(x86_sse4_1)))]
+        #[cfg(x86_sse)]
         return Vec4(unsafe { sse_dot3_m128(self.0, rhs.0) });
-        #[cfg(x86_sse4_1)]
-        return Vec4(unsafe { _mm_dp_ps(self.0, rhs.0, 0x7f) });
         #[cfg(arm_neon)]
         return Vec4(unsafe {
-            vdupq_n_f32(neon_add(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)))
+            vdupq_n_f32(vaddvq_f32(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)))
         });
-        #[cfg(not(any(x86_sse, x86_sse4_1, arm_neon)))]
+        #[cfg(not(any(x86_sse, arm_neon)))]
         return Vec4::splat((self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z));
     }
 
@@ -199,7 +193,23 @@ impl Vec3 {
             );
             Self(_mm_shuffle_ps(sub, sub, MASK))
         };
-        #[cfg(all(arm_neon, aarch64))]
+        #[cfg(all(arm_neon, not(arm64_neon)))]
+        return unsafe {
+            let xy0 = vget_low_f32(self.0);
+            let xy1 = vget_low_f32(rhs.0);
+            let yx0 = vrev64_f32(xy0);
+            let yx1 = vrev64_f32(xy1);
+            let zz0 = vdup_lane_f32(vget_high_f32(self.0), 0);
+            let zz1 = vdup_lane_f32(vget_high_f32(rhs.0), 0);
+            let res = vmulq_f32(vcombine_f32(yx0, xy0), vcombine_f32(zz1, yx1));
+            let res = vmlsq_f32(res, vcombine_f32(zz0, yx0), vcombine_f32(yx1, xy1));
+            let res = vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(res), U32X4_FLIP_Y));
+            Self(vreinterpretq_f32_u32(vandq_u32(
+                vreinterpretq_u32_f32(res),
+                U32X4_MASK_XYZ,
+            )))
+        };
+        #[cfg(arm64_neon)]
         return unsafe {
             let sub = vsubq_f32(
                 vmulq_f32(neon_shuffle_1200(rhs.0), self.0),
@@ -215,7 +225,7 @@ impl Vec3 {
             );
             Self(i32x4_shuffle::<2, 0, 1, 1>(sub, sub))
         };
-        #[cfg(not(any(x86_sse, all(arm_neon, aarch64), wasm_simd128)))]
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
         return Self::new(
             self.y * rhs.z - self.z * rhs.y,
             self.z * rhs.x - self.x * rhs.z,
@@ -230,7 +240,7 @@ impl Vec3 {
             let min = _mm_min_ps(self.0, _mm_shuffle_ps(self.0, self.0, 0b01_01_10_10));
             _mm_cvtss_f32(_mm_min_ps(min, _mm_shuffle_ps(min, min, 0b00_00_00_01)))
         }
-        #[cfg(all(arm_neon, aarch64))]
+        #[cfg(arm64_neon)]
         return unsafe {
             let min = vminq_f32(self.0, neon_shuffle::<2, 2, 1, 1>(self.0));
             vgetq_lane_f32::<0>(vminq_f32(min, neon_shuffle::<1, 0, 0, 0>(min)))
@@ -240,7 +250,7 @@ impl Vec3 {
             let min = f32x4_pmin(self.0, i32x4_shuffle::<2, 2, 1, 1>(self.0, self.0));
             f32x4_extract_lane::<0>(f32x4_pmin(min, i32x4_shuffle::<1, 0, 0, 0>(min, min)))
         };
-        #[cfg(not(any(x86_sse, all(arm_neon, aarch64), wasm_simd128)))]
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
         return self.x.min(self.y).min(self.z);
     }
 
@@ -251,7 +261,7 @@ impl Vec3 {
             let max = _mm_max_ps(self.0, _mm_shuffle_ps(self.0, self.0, 0b01_01_10_10));
             _mm_cvtss_f32(_mm_max_ps(max, _mm_shuffle_ps(max, max, 0b00_00_00_01)))
         }
-        #[cfg(all(arm_neon, aarch64))]
+        #[cfg(arm64_neon)]
         return unsafe {
             let max = vmaxq_f32(self.0, neon_shuffle::<2, 2, 1, 1>(self.0));
             vgetq_lane_f32::<0>(vmaxq_f32(max, neon_shuffle::<1, 0, 0, 0>(max)))
@@ -261,7 +271,7 @@ impl Vec3 {
             let max = f32x4_pmax(self.0, i32x4_shuffle::<2, 2, 1, 1>(self.0, self.0));
             f32x4_extract_lane::<0>(f32x4_pmax(max, i32x4_shuffle::<1, 0, 0, 0>(max, max)))
         };
-        #[cfg(not(any(x86_sse, all(arm_neon, aarch64), wasm_simd128)))]
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
         return self.x.max(self.y).max(self.z);
     }
 }

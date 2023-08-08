@@ -12,6 +12,7 @@ pub use float4::{float4, Float4};
 pub(crate) mod quat;
 pub use quat::{quat, Quat};
 
+#[cfg(any(not(no_simd), not(any(arm_neon, x86_sse, wasm_simd128))))]
 pub(crate) mod simd;
 
 pub(crate) mod vec3;

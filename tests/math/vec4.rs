@@ -117,8 +117,16 @@ fn test_invalid_accessors() {
 fn test_dot() {
     let x = vec4(1.0, 0.0, 0.0, 0.0);
     let y = vec4(0.0, 1.0, 0.0, 0.0);
+    let z = vec4(0.0, 0.0, 1.0, 0.0);
+    let w = vec4(0.0, 0.0, 0.0, 1.0);
     assert_eq!(1.0, x.dot(x));
+    assert_eq!(1.0, y.dot(y));
+    assert_eq!(1.0, z.dot(z));
+    assert_eq!(1.0, w.dot(w));
     assert_eq!(0.0, x.dot(y));
+    assert_eq!(0.0, y.dot(z));
+    assert_eq!(0.0, z.dot(w));
+    assert_eq!(0.0, w.dot(x));
     assert_eq!(
         [14.0; 4],
         *vec4(0.0, 4.0, 6.0, 8.0)
