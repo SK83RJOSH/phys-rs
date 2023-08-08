@@ -84,6 +84,13 @@ jobs:
         with:
           command: test
 
+      - name: Test (x86 sse3)
+        env:
+          RUSTFLAGS: -Ctarget-feature=+sse3
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
       - name: Test (x86 sse4.1)
         env:
           RUSTFLAGS: -Ctarget-feature=+sse4.1

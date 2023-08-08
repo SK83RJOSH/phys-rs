@@ -48,6 +48,7 @@
                 "rust: test i686-pc-windows-msvc (sse)",
                 "rust: test x86_64-pc-windows-msvc (no-simd)",
                 "rust: test x86_64-pc-windows-msvc (sse2)",
+                "rust: test x86_64-pc-windows-msvc (sse3)",
                 "rust: test x86_64-pc-windows-msvc (sse4.1)",
                 "rust: test wasm32-unknown-unknown (no-simd)",
                 "rust: test wasm32-unknown-unknown (simd128)",
@@ -120,6 +121,24 @@
             "options": {
                 "env": {
                     "RUSTFLAGS": "-Ctarget-feature=+sse2",
+                }
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$rustc"
+            ],
+        },
+        {
+            "label": "rust: test x86_64-pc-windows-msvc (sse3)",
+            "type": "cargo",
+            "command": "test",
+            "args": [
+                "--target",
+                "x86_64-pc-windows-msvc"
+            ],
+            "options": {
+                "env": {
+                    "RUSTFLAGS": "-Ctarget-feature=+sse3",
                 }
             },
             "group": "build",
