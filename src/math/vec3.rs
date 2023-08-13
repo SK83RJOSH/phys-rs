@@ -1,5 +1,6 @@
 #[cfg(not(spirv))]
 use core::fmt;
+use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use std::ops::{Deref, DerefMut, Index, IndexMut};
 
 use crate::math::simd::*;
@@ -283,6 +284,385 @@ impl Vec3 {
         };
         #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
         return self.x.max(self.y).max(self.z);
+    }
+}
+
+impl Default for Vec3 {
+    #[inline(always)]
+    fn default() -> Self {
+        Self::ZERO
+    }
+}
+
+impl Div<Vec3> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn div(self, rhs: Self) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_div_ps(self.0, rhs.0) });
+        #[cfg(arm64_neon)]
+        return Self(unsafe { vdivq_f32(self.0, rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_div(self.0, rhs.0));
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        return Self::new(self.x / rhs.x, self.y / rhs.y, self.z / rhs.z);
+    }
+}
+
+impl DivAssign<Vec3> for Vec3 {
+    #[inline]
+    fn div_assign(&mut self, rhs: Self) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_div_ps(self.0, rhs.0) };
+        }
+        #[cfg(arm64_neon)]
+        {
+            self.0 = unsafe { vdivq_f32(self.0, rhs.0) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_div(self.0, rhs.0);
+        }
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        {
+            self.x /= rhs.x;
+            self.y /= rhs.y;
+            self.z /= rhs.z;
+        }
+    }
+}
+
+impl Div<f32> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn div(self, rhs: f32) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_div_ps(self.0, _mm_set1_ps(rhs)) });
+        #[cfg(arm64_neon)]
+        return Self(unsafe { vdivq_f32(self.0, vdupq_n_f32(rhs)) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_div(self.0, f32x4_splat(rhs)));
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        return Self::new(self.x / rhs, self.y / rhs, self.z / rhs);
+    }
+}
+
+impl DivAssign<f32> for Vec3 {
+    #[inline]
+    fn div_assign(&mut self, rhs: f32) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_div_ps(self.0, _mm_set1_ps(rhs)) };
+        }
+        #[cfg(arm64_neon)]
+        {
+            self.0 = unsafe { vdivq_f32(self.0, vdupq_n_f32(rhs)) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_div(self.0, f32x4_splat(rhs));
+        }
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        {
+            self.x /= rhs;
+            self.y /= rhs;
+            self.z /= rhs;
+        }
+    }
+}
+
+impl Div<Vec3> for f32 {
+    type Output = Vec3;
+    #[inline]
+    fn div(self, rhs: Vec3) -> Vec3 {
+        #[cfg(x86_sse)]
+        return Vec3(unsafe { _mm_div_ps(_mm_set1_ps(self), rhs.0) });
+        #[cfg(arm64_neon)]
+        return Vec3(unsafe { vdivq_f32(vdupq_n_f32(self), rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Vec3(f32x4_div(f32x4_splat(self), rhs.0));
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        return Vec3::new(self / rhs.x, self / rhs.y, self / rhs.z);
+    }
+}
+
+impl Mul<Vec3> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn mul(self, rhs: Self) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_mul_ps(self.0, rhs.0) });
+        #[cfg(arm_neon)]
+        return Self(unsafe { vmulq_f32(self.0, rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_mul(self.0, rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Self::new(self.x * rhs.x, self.y * rhs.y, self.z * rhs.z);
+    }
+}
+
+impl MulAssign<Vec3> for Vec3 {
+    #[inline]
+    fn mul_assign(&mut self, rhs: Self) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_mul_ps(self.0, rhs.0) };
+        }
+        #[cfg(arm_neon)]
+        {
+            self.0 = unsafe { vmulq_f32(self.0, rhs.0) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_mul(self.0, rhs.0);
+        }
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        {
+            self.x *= rhs.x;
+            self.y *= rhs.y;
+            self.z *= rhs.z;
+        }
+    }
+}
+
+impl Mul<f32> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn mul(self, rhs: f32) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_mul_ps(self.0, _mm_set1_ps(rhs)) });
+        #[cfg(arm_neon)]
+        return Self(unsafe { vmulq_f32(self.0, vdupq_n_f32(rhs)) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_mul(self.0, f32x4_splat(rhs)));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Self::new(self.x * rhs, self.y * rhs, self.z * rhs);
+    }
+}
+
+impl MulAssign<f32> for Vec3 {
+    #[inline]
+    fn mul_assign(&mut self, rhs: f32) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_mul_ps(self.0, _mm_set1_ps(rhs)) };
+        }
+        #[cfg(arm_neon)]
+        {
+            self.0 = unsafe { vmulq_f32(self.0, vdupq_n_f32(rhs)) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_mul(self.0, f32x4_splat(rhs));
+        }
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        {
+            self.x *= rhs;
+            self.y *= rhs;
+            self.z *= rhs;
+        }
+    }
+}
+
+impl Mul<Vec3> for f32 {
+    type Output = Vec3;
+    #[inline]
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        #[cfg(x86_sse)]
+        return Vec3(unsafe { _mm_mul_ps(_mm_set1_ps(self), rhs.0) });
+        #[cfg(arm_neon)]
+        return Vec3(unsafe { vmulq_f32(vdupq_n_f32(self), rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Vec3(f32x4_mul(f32x4_splat(self), rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Vec3::new(self * rhs.x, self * rhs.y, self * rhs.z);
+    }
+}
+
+impl Add<Vec3> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn add(self, rhs: Self) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_add_ps(self.0, rhs.0) });
+        #[cfg(arm_neon)]
+        return Self(unsafe { vaddq_f32(self.0, rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_add(self.0, rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Self::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z);
+    }
+}
+
+impl AddAssign<Vec3> for Vec3 {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_add_ps(self.0, rhs.0) };
+        }
+        #[cfg(arm_neon)]
+        {
+            self.0 = unsafe { vaddq_f32(self.0, rhs.0) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_add(self.0, rhs.0);
+        }
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        {
+            self.x += rhs.x;
+            self.y += rhs.y;
+            self.z += rhs.z;
+        }
+    }
+}
+
+impl Add<f32> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn add(self, rhs: f32) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_add_ps(self.0, _mm_set1_ps(rhs)) });
+        #[cfg(arm_neon)]
+        return Self(unsafe { vaddq_f32(self.0, vdupq_n_f32(rhs)) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_add(self.0, f32x4_splat(rhs)));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Self::new(self.x + rhs, self.y + rhs, self.z + rhs);
+    }
+}
+
+impl AddAssign<f32> for Vec3 {
+    #[inline]
+    fn add_assign(&mut self, rhs: f32) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_add_ps(self.0, _mm_set1_ps(rhs)) };
+        }
+        #[cfg(arm_neon)]
+        {
+            self.0 = unsafe { vaddq_f32(self.0, vdupq_n_f32(rhs)) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_add(self.0, f32x4_splat(rhs));
+        }
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        {
+            self.x += rhs;
+            self.y += rhs;
+            self.z += rhs;
+        }
+    }
+}
+
+impl Add<Vec3> for f32 {
+    type Output = Vec3;
+    #[inline]
+    fn add(self, rhs: Vec3) -> Vec3 {
+        #[cfg(x86_sse)]
+        return Vec3(unsafe { _mm_add_ps(_mm_set1_ps(self), rhs.0) });
+        #[cfg(arm_neon)]
+        return Vec3(unsafe { vaddq_f32(vdupq_n_f32(self), rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Vec3(f32x4_add(f32x4_splat(self), rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Vec3::new(self + rhs.x, self + rhs.y, self + rhs.z);
+    }
+}
+
+impl Sub<Vec3> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn sub(self, rhs: Self) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_sub_ps(self.0, rhs.0) });
+        #[cfg(arm_neon)]
+        return Self(unsafe { vsubq_f32(self.0, rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_sub(self.0, rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Self::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z);
+    }
+}
+
+impl SubAssign<Vec3> for Vec3 {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Self) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_sub_ps(self.0, rhs.0) };
+        }
+        #[cfg(arm_neon)]
+        {
+            self.0 = unsafe { vsubq_f32(self.0, rhs.0) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_sub(self.0, rhs.0);
+        }
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        {
+            self.x -= rhs.x;
+            self.y -= rhs.y;
+            self.z -= rhs.z;
+        }
+    }
+}
+
+impl Sub<f32> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn sub(self, rhs: f32) -> Self {
+        #[cfg(x86_sse)]
+        return Self(unsafe { _mm_sub_ps(self.0, _mm_set1_ps(rhs)) });
+        #[cfg(arm_neon)]
+        return Self(unsafe { vsubq_f32(self.0, vdupq_n_f32(rhs)) });
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_sub(self.0, f32x4_splat(rhs)));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Self::new(self.x - rhs, self.y - rhs, self.z - rhs);
+    }
+}
+
+impl SubAssign<f32> for Vec3 {
+    #[inline]
+    fn sub_assign(&mut self, rhs: f32) {
+        #[cfg(x86_sse)]
+        {
+            self.0 = unsafe { _mm_sub_ps(self.0, _mm_set1_ps(rhs)) };
+        }
+        #[cfg(arm_neon)]
+        {
+            self.0 = unsafe { vsubq_f32(self.0, vdupq_n_f32(rhs)) };
+        }
+        #[cfg(wasm_simd128)]
+        {
+            self.0 = f32x4_sub(self.0, f32x4_splat(rhs));
+        }
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        {
+            self.x -= rhs;
+            self.y -= rhs;
+            self.z -= rhs;
+        }
+    }
+}
+
+impl Sub<Vec3> for f32 {
+    type Output = Vec3;
+    #[inline]
+    fn sub(self, rhs: Vec3) -> Vec3 {
+        #[cfg(x86_sse)]
+        return Vec3(unsafe { _mm_sub_ps(_mm_set1_ps(self), rhs.0) });
+        #[cfg(arm_neon)]
+        return Vec3(unsafe { vsubq_f32(vdupq_n_f32(self), rhs.0) });
+        #[cfg(wasm_simd128)]
+        return Vec3(f32x4_sub(f32x4_splat(self), rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        return Vec3::new(self - rhs.x, self - rhs.y, self - rhs.z);
     }
 }
 

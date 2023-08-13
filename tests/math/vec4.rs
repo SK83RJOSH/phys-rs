@@ -199,3 +199,24 @@ fn test_min_max_element() {
     assert_eq!(4.0, c.max_element());
     assert_eq!(4.0, d.max_element());
 }
+
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+fn test_basic_arithmetic_element() {
+    let a = vec4(1.0, 2.0, 3.0, 4.0);
+    let b = vec4(4.0, 3.0, 2.0, 1.0);
+    assert_eq!((2.0, 3.0, 4.0, 5.0), (a + 1.0).into());
+    assert_eq!((5.0, 4.0, 3.0, 2.0), (b + 1.0).into());
+    assert_eq!((2.0, 4.0, 6.0, 8.0), (a * 2.0).into());
+    assert_eq!((8.0, 6.0, 4.0, 2.0), (b * 2.0).into());
+    assert_eq!((0.0, 1.0, 2.0, 3.0), (a - 1.0).into());
+    assert_eq!((3.0, 2.0, 1.0, 0.0), (b - 1.0).into());
+    assert_eq!((0.5, 1.0, 1.5, 2.0), (a / 2.0).into());
+    assert_eq!((2.0, 1.5, 1.0, 0.5), (b / 2.0).into());
+    assert_eq!((5.0, 5.0, 5.0, 5.0), (a + b).into());
+    assert_eq!((4.0, 6.0, 6.0, 4.0), (a * b).into());
+    assert_eq!((-3.0, -1.0, 1.0, 3.0), (a - b).into());
+    assert_eq!((3.0, 1.0, -1.0, -3.0), (b - a).into());
+    assert_eq!((0.25, 2.0 / 3.0, 1.5, 4.0), (a / b).into());
+    assert_eq!((4.0, 1.5, 2.0 / 3.0, 0.25), (b / a).into());
+}
