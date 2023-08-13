@@ -113,7 +113,9 @@ impl Vec4 {
         return Self(unsafe { _mm_min_ps(self.0, rhs.0) });
         #[cfg(arm_neon)]
         return Self(unsafe { vminq_f32(self.0, rhs.0) });
-        #[cfg(not(any(x86_sse, arm_neon)))]
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_pmin(self.0, rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
         return Self::new(
             self.x.min(rhs.x),
             self.y.min(rhs.y),
@@ -128,7 +130,9 @@ impl Vec4 {
         return Self(unsafe { _mm_max_ps(self.0, rhs.0) });
         #[cfg(arm_neon)]
         return Self(unsafe { vmaxq_f32(self.0, rhs.0) });
-        #[cfg(not(any(x86_sse, arm_neon)))]
+        #[cfg(wasm_simd128)]
+        return Self(f32x4_pmax(self.0, rhs.0));
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
         return Self::new(
             self.x.max(rhs.x),
             self.y.max(rhs.y),
