@@ -174,7 +174,7 @@ fn test_min_max_element() {
 
 #[cfg_attr(not(target_family = "wasm"), test)]
 #[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
-fn test_basic_arithmetic_element() {
+fn test_basic_arithmetic() {
     let a = vec3(1.0, 2.0, 3.0);
     let b = vec3(3.0, 2.0, 1.0);
     assert_eq!((2.0, 3.0, 4.0), (a + 1.0).into());
@@ -185,10 +185,40 @@ fn test_basic_arithmetic_element() {
     assert_eq!((2.0, 1.0, 0.0), (b - 1.0).into());
     assert_eq!((0.5, 1.0, 1.5), (a / 2.0).into());
     assert_eq!((1.5, 1.0, 0.5), (b / 2.0).into());
+    assert_eq!((2.0, 3.0, 4.0), (1.0 + a).into());
+    assert_eq!((4.0, 3.0, 2.0), (1.0 + b).into());
+    assert_eq!((2.0, 4.0, 6.0), (2.0 * a).into());
+    assert_eq!((6.0, 4.0, 2.0), (2.0 * b).into());
+    assert_eq!((0.0, -1.0, -2.0), (1.0 - a).into());
+    assert_eq!((-2.0, -1.0, 0.0), (1.0 - b).into());
+    assert_eq!((2.0, 1.0, 2.0 / 3.0), (2.0 / a).into());
+    assert_eq!((2.0 / 3.0, 1.0, 2.0), (2.0 / b).into());
     assert_eq!((4.0, 4.0, 4.0), (a + b).into());
     assert_eq!((3.0, 4.0, 3.0), (a * b).into());
     assert_eq!((-2.0, 0.0, 2.0), (a - b).into());
     assert_eq!((2.0, 0.0, -2.0), (b - a).into());
     assert_eq!((1.0 / 3.0, 1.0, 3.0), (a / b).into());
     assert_eq!((3.0, 1.0, 1.0 / 3.0), (b / a).into());
+}
+
+#[cfg_attr(not(target_family = "wasm"), test)]
+#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+fn test_basic_arithmetic_assignment() {
+    let mut a = vec3(1.0, 2.0, 3.0);
+    a += 1.0;
+    assert_eq!((2.0, 3.0, 4.0), a.into());
+    a -= 1.0;
+    assert_eq!((1.0, 2.0, 3.0), a.into());
+    a *= 2.0;
+    assert_eq!((2.0, 4.0, 6.0), a.into());
+    a /= 2.0;
+    assert_eq!((1.0, 2.0, 3.0), a.into());
+    a += Vec3::splat(1.0);
+    assert_eq!((2.0, 3.0, 4.0), a.into());
+    a -= Vec3::splat(1.0);
+    assert_eq!((1.0, 2.0, 3.0), a.into());
+    a *= Vec3::splat(2.0);
+    assert_eq!((2.0, 4.0, 6.0), a.into());
+    a /= Vec3::splat(2.0);
+    assert_eq!((1.0, 2.0, 3.0), a.into());
 }
