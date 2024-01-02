@@ -1,6 +1,6 @@
 pub(crate) mod deref;
 
-#[cfg(all(no_std, libm))]
+#[cfg(all(no_simd, no_std, libm))]
 pub(crate) mod libm;
 
 pub(crate) mod float2;

@@ -2,7 +2,7 @@
 use core::fmt;
 use core::{f32, ops::*};
 
-#[cfg(all(no_std, libm))]
+#[cfg(all(no_std, no_simd, libm))]
 use crate::math::libm::F32Ext;
 use crate::math::simd::*;
 use crate::math::{float3::Float3, vec4::Vec4};
