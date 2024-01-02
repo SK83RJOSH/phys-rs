@@ -37,8 +37,8 @@ pub type VectorType = v128;
 pub type VectorType = [f32; 4];
 
 #[repr(C)]
-pub(crate) union VectorUnionCast<T: Copy> {
-    pub a: [f32; 4],
+pub(crate) union VectorUnionCast<C: Copy, T: Copy> {
+    pub a: [C; 4],
     pub v: T,
 }
 

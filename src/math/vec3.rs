@@ -1,8 +1,9 @@
 #[cfg(not(spirv))]
 use core::fmt;
-use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-use std::ops::{Deref, DerefMut, Index, IndexMut};
+use core::{f32, ops::*};
 
+#[cfg(all(no_std, libm))]
+use crate::math::libm::F32Ext;
 use crate::math::simd::*;
 use crate::math::{float3::Float3, vec4::Vec4};
 

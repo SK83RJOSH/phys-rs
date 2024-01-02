@@ -1,4 +1,4 @@
-use std::ops::{Index, IndexMut};
+use core::{f32, ops::*};
 
 /// Creates a 2-dimensional vector.
 #[inline(always)]

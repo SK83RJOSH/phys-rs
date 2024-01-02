@@ -1,6 +1,6 @@
 #[cfg(not(spirv))]
 use core::fmt;
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 use crate::math::vec3::Vec3;
 

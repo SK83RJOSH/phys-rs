@@ -6,7 +6,8 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace.dependencies]
-cfg_aliases = "0.1.1"
+cfg_aliases = { version = "0.2.0", default-features = false }
+libm = { version = "0.2.8", default-features = false }
 
 [package]
 name = "phys-rs"
@@ -18,6 +19,9 @@ readme = "README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["gamedev", "physics"]
 categories = ["game-engines", "no-std"]
+
+[dependencies]
+libm = { workspace = true, optional = true }
 
 [badges]
 maintenance = { status = "actively-developed" }

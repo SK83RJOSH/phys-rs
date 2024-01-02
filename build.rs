@@ -3,7 +3,11 @@ use cfg_aliases::cfg_aliases;
 
 fn main() {
     cfg_aliases! {
-        simd: { not(feature = "no-simd") },
+        std: { feature = "std" },
+        no_std: { not(std) },
+        no_simd: { feature = "no-simd" },
+        simd: { not(no_simd) },
+        libm: { feature = "libm" },
         arm: { any(target_arch = "arm", target_arch = "aarch64") },
         arm_neon: { all(simd, arm, target_feature = "neon") },
         arm64: { target_arch = "aarch64" },

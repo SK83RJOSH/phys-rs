@@ -1,5 +1,8 @@
 pub(crate) mod deref;
 
+#[cfg(all(no_std, libm))]
+pub(crate) mod libm;
+
 pub(crate) mod float2;
 pub use float2::{float2, Float2};
 

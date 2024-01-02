@@ -1,7 +1,6 @@
 #[cfg(not(spirv))]
 use core::fmt;
-use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-use std::ops::{Deref, DerefMut, Index, IndexMut};
+use core::{f32, ops::*};
 
 use crate::math::simd::*;
 use crate::math::{float4::Float4, vec3::Vec3};

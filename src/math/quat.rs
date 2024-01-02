@@ -1,6 +1,6 @@
 #[cfg(not(spirv))]
 use core::fmt;
-use std::ops::{Deref, DerefMut, Index, IndexMut};
+use core::{f32, ops::*};
 
 use crate::math::simd::*;
 use crate::math::vec4::Vec4;
