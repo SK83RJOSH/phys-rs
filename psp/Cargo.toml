@@ -1,0 +1,10 @@
+[package]
+name = "psp_tests"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+psp = { workspace = true }
+psp-test = { workspace = true }
+
+phys-rs = { path = "../.", default-features = false }

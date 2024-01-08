@@ -119,7 +119,16 @@ impl Vec3 {
         return Self(unsafe { vminq_f32(self.0, rhs.0) });
         #[cfg(wasm_simd128)]
         return Self(f32x4_pmin(self.0, rhs.0));
-        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "vmin.t C000, C010, C020",
+            "sv.q C000, {0}",
+            self.0,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128, psp_vfpu)))]
         return Self::new(self.x.min(rhs.x), self.y.min(rhs.y), self.z.min(rhs.z));
     }
 
@@ -131,12 +140,34 @@ impl Vec3 {
         return Self(unsafe { vmaxq_f32(self.0, rhs.0) });
         #[cfg(wasm_simd128)]
         return Self(f32x4_pmax(self.0, rhs.0));
-        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "vmax.t C000, C010, C020",
+            "sv.q C000, {0}",
+            self.0,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128, psp_vfpu)))]
         return Self::new(self.x.max(rhs.x), self.y.max(rhs.y), self.z.max(rhs.z));
     }
 
     #[inline]
     pub fn clamp(self, min: Self, max: Self) -> Self {
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "lv.q C030, {3}",
+            "vmax.t C000, C010, C020",
+            "vmin.t C000, C000, C030",
+            "sv.q C000, {0}",
+            self.0,
+            min.0,
+            max.0,
+        );
+        #[cfg(not(any(psp_vfpu)))]
         self.max(min).min(max)
     }
 
@@ -146,7 +177,14 @@ impl Vec3 {
         return Self(unsafe { _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), self.0), self.0) });
         #[cfg(arm_neon)]
         return Self(unsafe { vabsq_f32(self.0) });
-        #[cfg(not(any(x86_sse, arm_neon)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "vabs.t C000, C010",
+            "sv.q C000, {0}",
+            self.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, psp_vfpu)))]
         return Self::new(self.x.abs(), self.y.abs(), self.z.abs());
     }
 
@@ -156,7 +194,16 @@ impl Vec3 {
         return unsafe { sse_dot3_f32(self.0, rhs.0) };
         #[cfg(arm_neon)]
         return unsafe { vaddvq_f32(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)) };
-        #[cfg(not(any(x86_sse, arm_neon)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "vdot.t S000, C010, C020",
+            "sv.s S000, {0}",
+            self.0,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, psp_vfpu)))]
         return (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z);
     }
 
@@ -168,7 +215,17 @@ impl Vec3 {
         return Self(unsafe {
             vdupq_n_f32(vaddvq_f32(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)))
         });
-        #[cfg(not(any(x86_sse, arm_neon)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "vdot.t S000, C010, C020",
+            "vmov.t C000, C000[X,X,X]",
+            "sv.q C000, {0}",
+            self.0,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, psp_vfpu)))]
         return Self::splat((self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z));
     }
 
@@ -180,7 +237,17 @@ impl Vec3 {
         return Vec4(unsafe {
             vdupq_n_f32(vaddvq_f32(vsetq_lane_f32(0.0, vmulq_f32(self.0, rhs.0), 3)))
         });
-        #[cfg(not(any(x86_sse, arm_neon)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "vdot.t S000, C010, C020",
+            "vmov.q C000, C000[X,X,X,X]",
+            "sv.q C000, {0}",
+            self.0,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, psp_vfpu)))]
         return Vec4::splat((self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z));
     }
 
@@ -227,7 +294,16 @@ impl Vec3 {
             );
             Self(i32x4_shuffle::<2, 0, 1, 1>(sub, sub))
         };
-        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "vcrsp.t C000, C010, C020",
+            "sv.q C000, {0}",
+            self.0,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128, psp_vfpu)))]
         return Self::new(
             self.y * rhs.z - self.z * rhs.y,
             self.z * rhs.x - self.x * rhs.z,
@@ -257,7 +333,16 @@ impl Vec3 {
             let min = f32x4_pmin(self.0, i32x4_shuffle::<2, 2, 1, 1>(self.0, self.0));
             f32x4_extract_lane::<0>(f32x4_pmin(min, i32x4_shuffle::<1, 0, 0, 0>(min, min)))
         };
-        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "vmov.t C020, C010[X,X,X]",
+            "vmin.t C030, C020, C010[Y,Y,Y]",
+            "vmin.t C000, C030, C010[Z,Z,Z]",
+            "sv.s S000, {0}",
+            self.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128, psp_vfpu)))]
         return self.x.min(self.y).min(self.z);
     }
 
@@ -283,7 +368,16 @@ impl Vec3 {
             let max = f32x4_pmax(self.0, i32x4_shuffle::<2, 2, 1, 1>(self.0, self.0));
             f32x4_extract_lane::<0>(f32x4_pmax(max, i32x4_shuffle::<1, 0, 0, 0>(max, max)))
         };
-        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "vmov.t C020, C010[X,X,X]",
+            "vmax.t C030, C020, C010[Y,Y,Y]",
+            "vmax.t C000, C030, C010[Z,Z,Z]",
+            "sv.s S000, {0}",
+            self.0,
+        );
+        #[cfg(not(any(x86_sse, arm_neon, wasm_simd128, psp_vfpu)))]
         return self.x.max(self.y).max(self.z);
     }
 }
@@ -305,7 +399,16 @@ impl Div<Vec3> for Vec3 {
         return Self(unsafe { vdivq_f32(self.0, rhs.0) });
         #[cfg(wasm_simd128)]
         return Self(f32x4_div(self.0, rhs.0));
-        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.q C020, {2}",
+            "vdiv.t C000, C010, C020",
+            "sv.q C000, {0}",
+            self.0,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128, psp_vfpu)))]
         return Self::new(self.x / rhs.x, self.y / rhs.y, self.z / rhs.z);
     }
 }
@@ -325,7 +428,18 @@ impl DivAssign<Vec3> for Vec3 {
         {
             self.0 = f32x4_div(self.0, rhs.0);
         }
-        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        {
+            self.0 = vfpu_asm_return!(
+                "lv.q C010, {1}",
+                "lv.q C020, {2}",
+                "vdiv.t C000, C010, C020",
+                "sv.q C000, {0}",
+                self.0,
+                rhs.0,
+            );
+        }
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128, psp_vfpu)))]
         {
             self.x /= rhs.x;
             self.y /= rhs.y;
@@ -344,7 +458,16 @@ impl Div<f32> for Vec3 {
         return Self(unsafe { vdivq_f32(self.0, vdupq_n_f32(rhs)) });
         #[cfg(wasm_simd128)]
         return Self(f32x4_div(self.0, f32x4_splat(rhs)));
-        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.q C010, {1}",
+            "lv.s S020, {2}",
+            "vdiv.t C000, C010, C020[X,X,X]",
+            "sv.q C000, {0}",
+            self.0,
+            rhs,
+        );
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128, psp_vfpu)))]
         return Self::new(self.x / rhs, self.y / rhs, self.z / rhs);
     }
 }
@@ -364,7 +487,18 @@ impl DivAssign<f32> for Vec3 {
         {
             self.0 = f32x4_div(self.0, f32x4_splat(rhs));
         }
-        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        {
+            self.0 = vfpu_asm_return!(
+                "lv.q C010, {1}",
+                "lv.s S020, {2}",
+                "vdiv.t C000, C010, C020[X,X,X]",
+                "sv.q C000, {0}",
+                self.0,
+                rhs,
+            );
+        }
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128, psp_vfpu)))]
         {
             self.x /= rhs;
             self.y /= rhs;
@@ -383,7 +517,16 @@ impl Div<Vec3> for f32 {
         return Vec3(unsafe { vdivq_f32(vdupq_n_f32(self), rhs.0) });
         #[cfg(wasm_simd128)]
         return Vec3(f32x4_div(f32x4_splat(self), rhs.0));
-        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128)))]
+        #[cfg(psp_vfpu)]
+        return vfpu_asm_return!(
+            "lv.s S010, {1}",
+            "lv.q C020, {2}",
+            "vdiv.t C000, C010[X,X,X], C020",
+            "sv.q C000, {0}",
+            self,
+            rhs.0,
+        );
+        #[cfg(not(any(x86_sse, arm64_neon, wasm_simd128, psp_vfpu)))]
         return Vec3::new(self / rhs.x, self / rhs.y, self / rhs.z);
     }
 }

@@ -12,11 +12,15 @@ pub(crate) use core::arch::wasm64::*;
 pub(crate) use core::arch::x86::*;
 #[cfg(all(target_arch = "x86_64", x86_sse))]
 pub(crate) use core::arch::x86_64::*;
+#[cfg(all(target_os = "psp", psp_vfpu))]
+pub(crate) use psp_vfpu::vfpu_asm;
 
 #[cfg(arm_neon)]
 pub(crate) use neon::*;
 #[cfg(x86_sse)]
 pub(crate) use sse::*;
+#[cfg(psp_vfpu)]
+pub(crate) use vfpu::*;
 #[cfg(wasm_simd128)]
 pub(crate) use wasm::*;
 
@@ -24,6 +28,8 @@ pub(crate) use wasm::*;
 pub(crate) mod neon;
 #[cfg(x86_sse)]
 pub(crate) mod sse;
+#[cfg(psp_vfpu)]
+pub(crate) mod vfpu;
 #[cfg(wasm_simd128)]
 pub(crate) mod wasm;
 
@@ -31,9 +37,11 @@ pub(crate) mod wasm;
 pub type VectorType = float32x4_t;
 #[cfg(x86_sse)]
 pub type VectorType = __m128;
+#[cfg(psp_vfpu)]
+pub type VectorType = psp::sys::ScePspVector4;
 #[cfg(wasm_simd128)]
 pub type VectorType = v128;
-#[cfg(not(any(arm_neon, x86_sse, wasm_simd128)))]
+#[cfg(not(any(arm_neon, x86_sse, wasm_simd128, psp_vfpu)))]
 pub type VectorType = [f32; 4];
 
 #[repr(C)]

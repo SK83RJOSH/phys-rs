@@ -1,7 +1,17 @@
+#[cfg(target_os = "psp")]
+use alloc::format;
+
+use core::assert_eq;
+use core::convert::{AsRef, From, Into};
+
+#[cfg(target_os = "psp")]
+pub(crate) use psp_test::test;
+#[cfg(target_family = "wasm")]
+pub(crate) use wasm_bindgen_test::wasm_bindgen_test as test;
+
 use phys_rs::math::{vec3, Vec3};
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_new() {
     let v0 = Vec3::new(1.0, 2.0, 3.0);
     assert_eq!((1.0, 2.0, 3.0), v0.into());
@@ -11,8 +21,7 @@ fn test_new() {
     assert_eq!((1.0, 2.0, 3.0), v2.into());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_splat() {
     const V0: Vec3 = Vec3::splat(1.0);
     assert_eq!([1.0; 3], *V0.as_ref());
@@ -20,8 +29,7 @@ fn test_splat() {
     assert_eq!([0.5; 3], *V1.as_ref());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_const() {
     const V0: Vec3 = Vec3::splat(1.0);
     assert_eq!([1.0; 3], *V0.as_ref());
@@ -29,8 +37,7 @@ fn test_const() {
     assert_eq!((1.0, 2.0, 3.0), V1.into());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_consts() {
     assert_eq!([0.0; 3], *Vec3::ZERO.as_ref());
     assert_eq!([1.0; 3], *Vec3::ONE.as_ref());
@@ -47,8 +54,7 @@ fn test_consts() {
     assert_eq!([f32::MAX; 3], *Vec3::MAX.as_ref());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 #[allow(clippy::uninlined_format_args)]
 fn test_fmt() {
     const V0: Vec3 = vec3(1.0, 2.0, 3.0);
@@ -69,8 +75,7 @@ fn test_fmt() {
     assert_eq!(format!("{}", V0), "[1, 2, 3]");
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_accessors() {
     let mut a = Vec3::ZERO;
     a.x = 1.0;
@@ -91,15 +96,13 @@ fn test_accessors() {
     assert_eq!((1.0, 2.0, 3.0), a.into());
 }
 
+#[test]
 #[should_panic]
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
 fn test_invalid_accessors() {
     assert_eq!(1.0, Vec3::ZERO[3]);
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_dot() {
     let x = vec3(1.0, 0.0, 0.0);
     let y = vec3(0.0, 1.0, 0.0);
@@ -124,8 +127,7 @@ fn test_dot() {
     );
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_cross() {
     const X: Vec3 = Vec3::X;
     const Y: Vec3 = Vec3::Y;
@@ -134,8 +136,7 @@ fn test_cross() {
     assert_eq!(*Z.as_ref(), *X.cross(Y).as_ref());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_min_max() {
     let a = vec3(3.0, 5.0, 1.0);
     let b = vec3(4.0, 2.0, 6.0);
@@ -145,8 +146,7 @@ fn test_min_max() {
     assert_eq!((4.0, 5.0, 6.0), b.max(a).into());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_clamp() {
     let min = vec3(1.0, 3.0, 3.0);
     let max = vec3(6.0, 8.0, 8.0);
@@ -158,8 +158,7 @@ fn test_clamp() {
     assert_eq!((6.0, 8.0, 8.0), vec3(9.0, 9.0, 9.0).clamp(min, max).into());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_min_max_element() {
     let a = vec3(1.0, 2.0, 3.0);
     let b = vec3(2.0, 3.0, 1.0);
@@ -172,8 +171,7 @@ fn test_min_max_element() {
     assert_eq!(3.0, c.max_element());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_basic_arithmetic() {
     let a = vec3(1.0, 2.0, 3.0);
     let b = vec3(3.0, 2.0, 1.0);
@@ -201,8 +199,7 @@ fn test_basic_arithmetic() {
     assert_eq!((3.0, 1.0, 1.0 / 3.0), (b / a).into());
 }
 
-#[cfg_attr(not(target_family = "wasm"), test)]
-#[cfg_attr(target_family = "wasm", wasm_bindgen_test::wasm_bindgen_test)]
+#[test]
 fn test_basic_arithmetic_assignment() {
     let mut a = vec3(1.0, 2.0, 3.0);
     a += 1.0;

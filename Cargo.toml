@@ -1,22 +1,30 @@
 [workspace]
 resolver = "2"
+default-members = ["."]
+members = [".", "crates/*", "psp"]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
+authors = ["Joshua Wood <me@sk83rjo.sh>"]
+repository = "https://github.com/SK83RJOSH/phys-rs"
+license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 cfg_aliases = { version = "0.2.0", default-features = false }
 libm = { version = "0.2.8", default-features = false }
+psp = { version = "0.3.7", default-features = false }
+psp-vfpu = { path = "crates/psp-vfpu" }
+psp-test = { path = "crates/psp-test" }
 
 [package]
 name = "phys-rs"
 version.workspace = true
 edition.workspace = true
-authors = ["Joshua Wood <me@sk83rjo.sh>"]
-repository = "https://github.com/SK83RJOSH/phys-rs"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
 readme = "README.md"
-license = "MIT OR Apache-2.0"
 keywords = ["gamedev", "physics"]
 categories = ["game-engines", "no-std"]
 
@@ -34,6 +42,13 @@ std = []
 nightly = []
 # disable all support for simd
 no-simd = []
+
+[target.'cfg(target_os = "psp")'.dependencies]
+psp = { workspace = true }
+psp-vfpu = { workspace = true }
+
+[target.'cfg(target_os = "psp")'.dev-dependencies]
+psp-test = { workspace = true }
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 criterion = "0.5.1"

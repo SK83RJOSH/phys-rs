@@ -1,0 +1,11 @@
+[package]
+name = "psp-vfpu"
+description = "VFPU support for the psp."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+unstringify = "0.1.4"
